@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.vite/
+.alchemy/
+.wrangler/
+.content-collections/
+bun.lock
+*.tgz

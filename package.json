@@ -1,0 +1,37 @@
+{
+	"name": "rolldown-jsx-cloudflare-repro",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"workspaces": ["packages/*"],
+	"description": "Reproduction: Rolldown panics on JSX in Cloudflare SSR environment (Vite 8 + @cloudflare/vite-plugin + @vitejs/plugin-react)",
+	"scripts": {
+		"dev": "alchemy dev --app repro"
+	},
+	"dependencies": {
+		"@cloudflare/vite-plugin": "1.23.1",
+		"@content-collections/core": "^0.13.0",
+		"@content-collections/vite": "^0.2.8",
+		"@dnd-kit/core": "^6.3.1",
+		"@dnd-kit/sortable": "^10.0.0",
+		"@repro/ui": "workspace:*",
+		"@tailwindcss/vite": "^4.1.18",
+		"@tanstack/react-router": "^1.154.8",
+		"@tanstack/react-start": "^1.158.3",
+		"@vitejs/plugin-react": "^5.1.2",
+		"alchemy": "^0.83.3",
+		"lucide-react": "^0.513.0",
+		"motion": "^12.15.0",
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
+		"sonner": "^2.0.3",
+		"tailwindcss": "^4.1.18",
+		"vite": "^8.0.0-beta.12",
+		"zod": "^4.3.5"
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.13",
+		"@types/react-dom": "^19.2.3",
+		"typescript": "^5.9.2"
+	}
+}
