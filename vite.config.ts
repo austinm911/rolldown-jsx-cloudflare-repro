@@ -33,13 +33,15 @@ function jsxDebugPlugin(): Plugin {
 	return {
 		name: 'jsx-debug',
 		configResolved(config) {
-			console.log('\n[jsx-debug] Top-level oxc:', JSON.stringify((config as any).oxc?.jsx))
+			console.log('')
 			for (const [name, env] of Object.entries(config.environments || {})) {
 				const envAny = env as any
-				const transform = envAny.optimizeDeps?.rolldownOptions?.transform
-				console.log(`[jsx-debug] env "${name}" optimizeDeps.rolldownOptions.transform:`, JSON.stringify(transform))
+				const jsx = envAny.optimizeDeps?.rolldownOptions?.transform?.jsx
+				const hasJsx = jsx !== undefined
+				const icon = hasJsx ? '✅' : '❌'
+				console.log(`[jsx-debug] ${icon} env "${name}" transform.jsx: ${hasJsx ? JSON.stringify(jsx) : 'MISSING'}`)
 			}
-			console.log()
+			console.log('')
 		},
 	}
 }
