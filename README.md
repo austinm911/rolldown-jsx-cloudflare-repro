@@ -13,30 +13,48 @@ workspace packages), Rolldown's `side_effect_detector` panics:
 internal error: entered unreachable code: jsx should be transpiled
 ```
 
-## Config Mismatch (visible with debug plugin)
+## Reproduce
+
+```bash
+bun install
+bun dev
+```
+
+The dev server fails immediately with:
 
 ```
-[jsx-debug] env "client" optimizeDeps.rolldownOptions.transform:
-  {"jsx":{"runtime":"automatic"}}                              ← ✅ has jsx
+[jsx-debug] ✅ env "client" transform.jsx: {"runtime":"automatic"}
+[jsx-debug] ❌ env "ssr" transform.jsx: MISSING
 
-[jsx-debug] env "ssr" optimizeDeps.rolldownOptions.transform:
-  {"target":"es2024","define":{...}}                           ← ❌ NO jsx
+🐛 BUG DETECTED: optimizeDeps.rolldownOptions.transform.jsx is MISSING for env "ssr"
+
+@cloudflare/vite-plugin sets transform to { target, define } for the SSR environment,
+overwriting the { jsx } config from @vitejs/plugin-react.
 ```
 
 The client environment gets `jsx` from `viteReact()`; the SSR environment gets `target` + `define`
 from `@cloudflare/vite-plugin` but **no `jsx`**.
 
-## Trigger Conditions
+### Apply the workaround
 
-The panic requires ALL of these:
-1. **Vite 8** with Rolldown (native Rolldown dep optimization)
-2. **`@cloudflare/vite-plugin`** creating an SSR environment with `viteEnvironment: { name: 'ssr' }`
-3. **`@vitejs/plugin-react`** setting JSX config at top level only
-4. **A package with raw `.tsx` source** in the SSR dep optimization graph
+Uncomment `jsxEnvFixPlugin()` in `vite.config.ts`:
 
-In a real monorepo (e.g., CRM with 50+ routes importing workspace packages like `@org/ui`
-that ship `.tsx` source), the optimizer discovers and bundles these packages. Without JSX config,
-Rolldown panics.
+```
+[jsx-debug] ✅ env "client" transform.jsx: {"runtime":"automatic"}
+[jsx-debug] ✅ env "ssr" transform.jsx: {"runtime":"automatic","importSource":"react"}
+
+VITE v8.0.0-beta.13  ready in 2147 ms
+```
+
+## How This Causes a Panic in Real Projects
+
+This repro includes `@repro/ui` — a local package that ships raw `.tsx` source (via `postinstall`
+script into `node_modules`). It demonstrates the missing config.
+
+In a real monorepo (e.g., CRM with 50+ routes, 124 SSR deps, workspace packages like `@org/ui`
+that ship `.tsx` source), the SSR dep optimizer discovers and bundles these packages. At scale, the
+missing JSX config causes Rolldown's `side_effect_detector` to panic consistently on a clean
+`.vite` cache.
 
 ## Versions
 
@@ -46,20 +64,6 @@ Rolldown panics.
 | @vitejs/plugin-react | 5.1.2+ |
 | @cloudflare/vite-plugin | 1.23.1 |
 | @tanstack/react-start | 1.158.x |
-
-## Reproduce
-
-```bash
-bun install
-rm -rf node_modules/.vite
-bun dev
-```
-
-Check the console output for the config mismatch in the `[jsx-debug]` lines.
-
-**Note:** The actual panic requires a large enough dep graph with `.tsx` source packages.
-This minimal repro demonstrates the config mismatch. In a full monorepo (47 routes, 124 SSR deps,
-workspace packages with `.tsx` source), it panics consistently on a clean `.vite` cache.
 
 ## Root Cause
 
@@ -92,7 +96,7 @@ When Vite merges configs, the Cloudflare plugin's per-environment `transform: { 
 
 ## Workaround
 
-Uncomment `jsxEnvFixPlugin()` in `vite.config.ts`, or add directly:
+Uncomment `jsxEnvFixPlugin()` in `vite.config.ts`, or add to your own config:
 
 ```ts
 export default defineConfig({
