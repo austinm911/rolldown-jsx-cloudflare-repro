@@ -2,18 +2,13 @@
  * Reproduction: Rolldown JSX panic in Cloudflare SSR environment
  *
  * Root cause: @cloudflare/vite-plugin sets the SSR environment's
- * `optimizeDeps.rolldownOptions.transform` to `{ target, define }` — with NO
- * `jsx` property. Meanwhile, @vitejs/plugin-react only sets `jsx` at the
- * TOP-LEVEL `optimizeDeps.rolldownOptions.transform`, which the per-environment
- * config from Cloudflare overwrites.
+ * `optimizeDeps.rolldownOptions.transform` to `{ target, define }` — without a
+ * `jsx` property. @vitejs/plugin-react only sets `transform.jsx` at the TOP
+ * level, which the per-environment config overwrites.
  *
- * When the SSR dep optimizer bundles a package that ships raw .tsx source,
- * Rolldown's side_effect_detector panics:
+ * When the SSR dep optimizer encounters a package that ships raw .tsx source
+ * (common in monorepos), Rolldown's side_effect_detector panics:
  *   "internal error: entered unreachable code: jsx should be transpiled"
- *
- * The debug plugin below logs the config mismatch. In a large monorepo with
- * workspace packages that ship .tsx source (not pre-compiled), the optimizer
- * processes these as SSR deps and panics.
  *
  * To verify:
  *   1. bun install && rm -rf node_modules/.vite
@@ -24,10 +19,10 @@
  */
 
 import contentCollections from '@content-collections/vite'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
-import alchemy from 'alchemy/cloudflare/tanstack-start'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 
@@ -76,10 +71,8 @@ function jsxEnvFixPlugin(): Plugin {
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
-		alchemy(),
-		tanstackStart({
-			router: { routeToken: 'layout' },
-		}),
+		cloudflare({ viteEnvironment: { name: 'ssr' } }),
+		tanstackStart(),
 		viteReact(),
 		contentCollections(),
 		jsxDebugPlugin(),

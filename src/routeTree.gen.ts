@@ -9,120 +9,122 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppPropertiesRouteImport } from './routes/app/properties'
 import { Route as AppDealsRouteImport } from './routes/app/deals'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppContactsRouteImport } from './routes/app/contacts'
 import { Route as AppCompaniesRouteImport } from './routes/app/companies'
 
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app/route',
-  path: '/app/route',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppPropertiesRoute = AppPropertiesRouteImport.update({
-  id: '/app/properties',
-  path: '/app/properties',
-  getParentRoute: () => rootRouteImport,
+  id: '/properties',
+  path: '/properties',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppDealsRoute = AppDealsRouteImport.update({
-  id: '/app/deals',
-  path: '/app/deals',
-  getParentRoute: () => rootRouteImport,
+  id: '/deals',
+  path: '/deals',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
-  id: '/app/dashboard',
-  path: '/app/dashboard',
-  getParentRoute: () => rootRouteImport,
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppContactsRoute = AppContactsRouteImport.update({
-  id: '/app/contacts',
-  path: '/app/contacts',
-  getParentRoute: () => rootRouteImport,
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppCompaniesRoute = AppCompaniesRouteImport.update({
-  id: '/app/companies',
-  path: '/app/companies',
-  getParentRoute: () => rootRouteImport,
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/app/companies': typeof AppCompaniesRoute
   '/app/contacts': typeof AppContactsRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/deals': typeof AppDealsRoute
   '/app/properties': typeof AppPropertiesRoute
-  '/app/route': typeof AppRouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/app/companies': typeof AppCompaniesRoute
   '/app/contacts': typeof AppContactsRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/deals': typeof AppDealsRoute
   '/app/properties': typeof AppPropertiesRoute
-  '/app/route': typeof AppRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/app/companies': typeof AppCompaniesRoute
   '/app/contacts': typeof AppContactsRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/deals': typeof AppDealsRoute
   '/app/properties': typeof AppPropertiesRoute
-  '/app/route': typeof AppRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
     | '/app/companies'
     | '/app/contacts'
     | '/app/dashboard'
     | '/app/deals'
     | '/app/properties'
-    | '/app/route'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app'
     | '/app/companies'
     | '/app/contacts'
     | '/app/dashboard'
     | '/app/deals'
     | '/app/properties'
-    | '/app/route'
   id:
     | '__root__'
     | '/'
+    | '/app'
     | '/app/companies'
     | '/app/contacts'
     | '/app/dashboard'
     | '/app/deals'
     | '/app/properties'
-    | '/app/route'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppCompaniesRoute: typeof AppCompaniesRoute
-  AppContactsRoute: typeof AppContactsRoute
-  AppDashboardRoute: typeof AppDashboardRoute
-  AppDealsRoute: typeof AppDealsRoute
-  AppPropertiesRoute: typeof AppPropertiesRoute
-  AppRouteRoute: typeof AppRouteRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -130,59 +132,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/route': {
-      id: '/app/route'
-      path: '/app/route'
-      fullPath: '/app/route'
-      preLoaderRoute: typeof AppRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app/properties': {
       id: '/app/properties'
-      path: '/app/properties'
+      path: '/properties'
       fullPath: '/app/properties'
       preLoaderRoute: typeof AppPropertiesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/deals': {
       id: '/app/deals'
-      path: '/app/deals'
+      path: '/deals'
       fullPath: '/app/deals'
       preLoaderRoute: typeof AppDealsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/dashboard': {
       id: '/app/dashboard'
-      path: '/app/dashboard'
+      path: '/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/contacts': {
       id: '/app/contacts'
-      path: '/app/contacts'
+      path: '/contacts'
       fullPath: '/app/contacts'
       preLoaderRoute: typeof AppContactsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/companies': {
       id: '/app/companies'
-      path: '/app/companies'
+      path: '/companies'
       fullPath: '/app/companies'
       preLoaderRoute: typeof AppCompaniesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRouteRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+interface AppRouteRouteChildren {
+  AppCompaniesRoute: typeof AppCompaniesRoute
+  AppContactsRoute: typeof AppContactsRoute
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppDealsRoute: typeof AppDealsRoute
+  AppPropertiesRoute: typeof AppPropertiesRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
   AppContactsRoute: AppContactsRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppDealsRoute: AppDealsRoute,
   AppPropertiesRoute: AppPropertiesRoute,
-  AppRouteRoute: AppRouteRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
