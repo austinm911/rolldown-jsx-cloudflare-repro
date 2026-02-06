@@ -51,7 +51,7 @@ VITE v8.0.0-beta.13  ready in 2147 ms
 This repro includes `@repro/ui` — a local package that ships raw `.tsx` source (via `postinstall`
 script into `node_modules`). It demonstrates the missing config.
 
-In a real monorepo (e.g., CRM with 50+ routes, 124 SSR deps, workspace packages like `@org/ui`
+In a real monorepo (e.g., App with 50+ routes, 124 SSR deps, workspace packages like `@org/ui`
 that ship `.tsx` source), the SSR dep optimizer discovers and bundles these packages. At scale, the
 missing JSX config causes Rolldown's `side_effect_detector` to panic consistently on a clean
 `.vite` cache.
