@@ -34,14 +34,28 @@ function jsxDebugPlugin(): Plugin {
 		name: 'jsx-debug',
 		configResolved(config) {
 			console.log('')
+			const missing: string[] = []
 			for (const [name, env] of Object.entries(config.environments || {})) {
 				const envAny = env as any
 				const jsx = envAny.optimizeDeps?.rolldownOptions?.transform?.jsx
 				const hasJsx = jsx !== undefined
 				const icon = hasJsx ? '✅' : '❌'
 				console.log(`[jsx-debug] ${icon} env "${name}" transform.jsx: ${hasJsx ? JSON.stringify(jsx) : 'MISSING'}`)
+				if (!hasJsx && envAny.optimizeDeps?.rolldownOptions?.transform) {
+					missing.push(name)
+				}
 			}
 			console.log('')
+			if (missing.length > 0) {
+				throw new Error(
+					`\n\n🐛 BUG DETECTED: optimizeDeps.rolldownOptions.transform.jsx is MISSING for env "${missing.join('", "')}"\n\n` +
+					`@cloudflare/vite-plugin sets transform to { target, define } for the SSR environment,\n` +
+					`overwriting the { jsx } config from @vitejs/plugin-react.\n\n` +
+					`In monorepos with workspace packages shipping raw .tsx source, this causes Rolldown to panic:\n` +
+					`  "internal error: entered unreachable code: jsx should be transpiled"\n\n` +
+					`➡️  Workaround: uncomment jsxEnvFixPlugin() in vite.config.ts\n`
+				)
+			}
 		},
 	}
 }
@@ -79,7 +93,7 @@ export default defineConfig({
 		contentCollections(),
 		jsxDebugPlugin(),
 		// ──────────────────────────────────────────
-		// Uncomment the line below to fix the panic:
+		// Uncomment the line below to fix the bug:
 		// jsxEnvFixPlugin(),
 		// ──────────────────────────────────────────
 	],
